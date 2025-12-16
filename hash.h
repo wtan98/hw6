@@ -5,6 +5,7 @@
 #include <cmath>
 #include <random>
 #include <chrono>
+#include <vector>
 
 typedef std::size_t HASH_INDEX_T;
 
@@ -19,16 +20,61 @@ struct MyStringHash {
     // hash function entry point (i.e. this is h(k))
     HASH_INDEX_T operator()(const std::string& k) const
     {
-        // Add your code here
+        int n = k.size(); 
+        int lastInd = 4; 
+        std::vector<HASH_INDEX_T>parts(5,0);  //set all to 0
+      
+        /*
+        //turn index of parts to 0
+        for (int i = 0; i < 5; i++){
+            parts[i] = 0; 
+        }
+        */
 
+        int pos = n; 
+        while(pos > 0 && lastInd >= 0){
+            HASH_INDEX_T val = 0;
+            HASH_INDEX_T base = 1; 
 
+            //go through next 6 letters
+            for (int i = 0; i < 6 && pos > 0; i++){
+                pos--;
+
+                //get number and turn to a letter
+                HASH_INDEX_T number = letterDigitToNumber(k[pos]);
+                
+                val += (number * base);
+                base *= 36; 
+            }
+            //set it
+            parts[lastInd] = val; 
+            lastInd--; 
+        }
+
+        //multiply each part by r and add
+        HASH_INDEX_T finalHash = 0; 
+        for (int i =0; i < 5; i++){
+            finalHash += (parts[i] * rValues[i]);
+        }
+        return finalHash; 
     }
 
     // A likely helper function is to convert a-z,0-9 to an integral value 0-35
     HASH_INDEX_T letterDigitToNumber(char letter) const
     {
-        // Add code here or delete this helper function if you do not want it
+        //first turn to lowercase (in ascii, its +32)
+        if (letter >= 'A' && letter <= 'Z'){
+            letter += 32; 
+        }
 
+        //0 = a - a, 1 = b - 1, etc
+        if (letter >= 'a' && letter <= 'z'){
+            return letter - 'a'; 
+        }
+        //else its 0-9 (26,27,28, etc)
+        else{
+            return (letter - '0') + 26; 
+        }
     }
 
     // Code to generate the random R values
